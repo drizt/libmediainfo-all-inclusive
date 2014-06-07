@@ -53,10 +53,16 @@ endif()
 check_include_file(unistd.h Z_HAVE_UNISTD_H)
 
 if(MSVC)
-    set(CMAKE_DEBUG_POSTFIX "d")
     add_definitions(-D_CRT_SECURE_NO_DEPRECATE)
     add_definitions(-D_CRT_NONSTDC_NO_DEPRECATE)
 endif()
+
+# On Windows debug library should have 'd' postfix.
+if(WIN32)
+  set(CMAKE_DEBUG_POSTFIX "d")
+elseif(APPLE)
+  set(CMAKE_DEBUG_POSTFIX "_debug")
+endif(WIN32)
 
 if(NOT CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR)
     # If we're doing an out of source build and the user has a zconf.h
@@ -145,15 +151,27 @@ if(NOT CYGWIN)
     set_target_properties(zlib PROPERTIES VERSION ${ZLIB_FULL_VERSION})
 endif()
 
-if(UNIX)
+if(UNIX OR NOT BUILD_SHARED_LIBS)
     # On unix-like platforms the library is almost always called libz
    set_target_properties(zlib PROPERTIES OUTPUT_NAME z)
 elseif(BUILD_SHARED_LIBS AND WIN32)
     # Creates zlib1.dll when building shared library version
-    set_target_properties(zlib PROPERTIES SUFFIX "1.dll")
+    set_target_properties(zlib PROPERTIES
+                          SUFFIX "1.dll"
+                          PREFIX "")
 endif()
 
 if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL )
+    if(MSVC)
+        get_target_property(LOCATION zlib LOCATION_DEBUG)
+        string(REGEX REPLACE "\\.[^.]*$" ".pdb" LOCATION "${LOCATION}")
+        install(FILES ${LOCATION} DESTINATION ${INSTALL_PATH} CONFIGURATIONS Debug)
+      
+        get_target_property(LOCATION zlib LOCATION_RELWITHDEBINFO)
+        string(REGEX REPLACE "\\.[^.]*$" ".pdb" LOCATION "${LOCATION}")
+        install(FILES ${LOCATION} DESTINATION ${INSTALL_PATH} CONFIGURATIONS RelWithDebInfo)
+    endif(MSVC)
+
     install(TARGETS zlib
         RUNTIME DESTINATION bin
         ARCHIVE DESTINATION lib
