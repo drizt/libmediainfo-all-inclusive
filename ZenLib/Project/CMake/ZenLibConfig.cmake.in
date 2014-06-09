@@ -1,0 +1,14 @@
+# known at buildtime
+set(ZenLib_VERSION "@ZenLib_VERSION_STRING@")
+set(ZenLib_VERSION_MAJOR @ZenLib_MAJOR_VERSION@)
+set(ZenLib_VERSION_MINOR @ZenLib_MINOR_VERSION@)
+set(ZenLib_VERSION_PATCH @ZenLib_PATCH_VERSION@)
+set(ZenLib_FOUND TRUE)
+
+get_filename_component(currentDir ${CMAKE_CURRENT_LIST_FILE} PATH) # get the directory where I myself am
+
+if(NOT TARGET zen)
+  include(${currentDir}/ZenLibTargets.cmake)
+endif()
+
+set(ZenLib_LIBRARY zen)
