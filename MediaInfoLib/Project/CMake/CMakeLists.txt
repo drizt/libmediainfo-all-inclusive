@@ -328,8 +328,8 @@ if(MSVC)
 endif()
 
 set_target_properties(mediainfo PROPERTIES
-	VERSION ${MEDIAINFOLIB_VERSION}
-	SOVERSION ${MEDIAINFOLIB_MAJOR_VERSION}
+	VERSION ${MediaInfoLib_VERSION}
+	SOVERSION ${MediaInfoLib_MAJOR_VERSION}
 )
 
 install(TARGETS mediainfo EXPORT mediainfo-export
